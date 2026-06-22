@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TurfProwler</title>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+            border: none;
+        }
+
+        #landing {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        #streets {
+            display: flex;
+            width: 50vw;
+            height: 50vh;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        #doors {
+            display: grid;
+            grid-template-columns: 10vw 10vw 10vw 10vw 10vw 10vw 10vw 10vw 10vw 10vw;
+            grid-template-rows: 5vh 5vh 5vh 5vh 5vh 5vh 5vh 5vh 5vh 5vh;
+        }
+
+        .street-btn {
+            padding: 1rem;
+            border: none;
+        }
+
+        .door-btn {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <div id="landing">
+        <input type="text" name="streetname" id="street-name">
+        <input type="button" value="Add Street" id="landing-add">
+        <input type="button" value="Start" id="landing-start">
+    </div>
+    <div id="main" style="display: none;">
+        <div id="streets"></div>
+        <div id="doors"></div>
+    </div>
+    <script>
+        class Street {
+                constructor(name) {
+                    this.name = name;
+                    this.doors = [];
+                    this.button = document.createElement("button");
+                    this.button.innerHTML = this.name;
+                    this.button.classList = ["street-btn"];
+
+                    for (let i = 0; i < 100; ++i) {
+                        this.doors.push(new Door(i));
+                    }
+
+                    this.button.addEventListener("click", this.click);
+                }
+
+                click = (event) => {
+                    renderDoors(this.doors);
+                }
+            }
+
+                    const STATUS_VIRGIN = 0;
+            const STATUS_KNOCKED = 1;
+            const STATUS_CONTACT = 2;
+            const STATUS_QUALIFIER = 3;
+            const STATUS_COLOUR = [];
+
+            STATUS_COLOUR[STATUS_VIRGIN] = "grey";
+            STATUS_COLOUR[STATUS_KNOCKED] = "blue";
+            STATUS_COLOUR[STATUS_CONTACT] = "red";
+            STATUS_COLOUR[STATUS_QUALIFIER] = "green";
+
+            function nextStatus(status) {
+                return (status + 1) % (STATUS_QUALIFIER + 1);
+            }
+
+
+        class Door {
+            constructor(no) {
+                this.no = no;
+                this.status = STATUS_VIRGIN;
+                this.button = document.createElement("button");
+                this.button.classList = ["door-btn"]
+                this.button.innerHTML = `${this.no}`;
+                this.button.style.background = STATUS_COLOUR[this.status];
+                this.button.addEventListener("click", this.click);
+
+            }
+
+            click = (event) => {
+                this.status = nextStatus(this.status);
+                this.button.style.background = STATUS_COLOUR[this.status];
+            };
+        }
+
+                    const renderDoors = (doors) => {
+                const doorsDisplay = document.querySelector("#doors");
+
+                doorsDisplay.replaceChildren();
+
+                for (let door of doors) {
+                    doorsDisplay.appendChild(door.button);
+                }
+            };
+
+        const streets = [];
+        const landing = document.querySelector("#landing");
+        const main = document.querySelector("#main");
+
+        // Landing
+        {
+            const streetName = document.querySelector("#street-name");
+            const add = document.querySelector("#landing-add");
+            const start = document.querySelector("#landing-start");
+
+            add.addEventListener("click", (_event) => {
+                console.log(streetName.value);
+                streets.push(new Street(streetName.value));
+            });
+
+            start.addEventListener("click", (_event) => {
+                landing.style.display = "none";
+                main.style.display = "block";
+                runMain();
+            })
+        }
+
+        function runMain(){ 
+            // Main
+            const streetsDisplay = document.querySelector("#streets");
+
+            for (let i = 0; i < streets.length; ++i) {
+                streetsDisplay.appendChild(streets[i].button);
+            }
+
+
+            renderDoors(streets[0].doors);
+        }
+    </script>
+</body>
+</html>
