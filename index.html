@@ -65,10 +65,12 @@
             width: 100vw;
             height: 100vh;
             display: grid;
+            grid-template-columns: 80vw 20vw;
             grid-template-rows: 90vh 10vh;
         }
 
         #street-menu-view #streets {
+            grid-column: 1 / 3;
             grid-row-start: 1;
             grid-row-end: 2;
             display: flex;
@@ -87,9 +89,18 @@
         }
 
         #street-menu-view #add-new-street {
+            grid-column: 1 / 1;
             grid-row-start: 2;
             grid-row-end: 2;
             background-color: lightgreen;
+            margin: 1rem;
+        }
+
+        #street-menu-view #clean-up {
+            grid-column: 2 / 2;
+            grid-row: 2 2;
+            background-color: lightcoral;
+            margin: 1rem;
         }
 
         #street-view {
@@ -165,6 +176,7 @@
             <!-- Streets go here -->
         </div>
         <button id="add-new-street">New Street</button>
+        <button id="clean-up">Clean Up</button>
     </div>
     <div id="street-view">
         <div id="nav">
@@ -357,6 +369,15 @@
         });
 
         document.querySelector("#add-new-street").addEventListener("click", _ => newStreetPage());
+
+        document.querySelector("#clean-up").addEventListener("click", _ => {
+            const mfIsSure = confirm("This will erase absolutely everything!\nDo it if you fuck up or AT THE END OF THE DAY");
+
+            if (mfIsSure) {
+                localStorage.clear();
+                streetMenuPage();
+            }
+        });
 
         document.querySelector("#back").addEventListener("click", _ => streetMenuPage());
 
