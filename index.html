@@ -5,153 +5,341 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TurfProwler</title>
     <style>
+        * {
+            font-family: monospace;
+            text-transform: uppercase;
+        }
+
         body {
-            padding: 0;
             margin: 0;
+            padding: none;
+            border: none;
+            background-color: #555555;
+            color: white;
+        }
+
+        button {
             border: none;
         }
 
-        #landing {
+        #new-street-view {
             width: 100vw;
             height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-        }
-
-        #streets {
-            display: flex;
-            width: 50vw;
-            height: 50vh;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        #doors {
             display: grid;
-            grid-template-columns: 10vw 10vw 10vw 10vw 10vw 10vw 10vw 10vw 10vw 10vw;
-            grid-template-rows: 5vh 5vh 5vh 5vh 5vh 5vh 5vh 5vh 5vh 5vh;
+            grid-template-columns: 25vw 25vw 25vw 25vw;
+            grid-template-rows: 40vh 10vh 10vh 40vh;
         }
 
-        .street-btn {
-            padding: 1rem;
-            border: none;
+        #new-street-view #add-street {
+            grid-column-start: 2;
+            grid-column-end: 3;
+            grid-row-start: 3;
+            grid-row-end: 4;
+            margin: 0.5rem;
+            background-color: lightgreen;;
         }
 
-        .door-btn {
-            border: 1px solid black;
+        #new-street-view #cancel {
+            grid-column-start: 3;
+            grid-column-end: 4;
+            grid-row-start: 3;
+            grid-row-end: 4;
+            margin: 0.5rem;
+            background-color: lightcoral;
         }
+
+        #new-street-view #street-name {
+            grid-row-start: 2;
+            grid-row-end: 3;
+            grid-column-start: 2;
+            grid-column-end: 4;
+            margin: 0.5rem;
+        }
+
+        #street-menu-view {
+            width: 100vw;
+            height: 100vh;
+            display: grid;
+            grid-template-rows: 90vh 10vh;
+        }
+
+        #street-menu-view #streets {
+            grid-row-start: 1;
+            grid-row-end: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-y: scroll;
+            gap: 0.25rem;
+        }
+
+        #street-menu-view #streets button {
+            display: block;
+            width: 100%;
+            height: 2rem;
+            background-color: lightblue;
+        }
+
+        #street-menu-view #add-new-street {
+            grid-row-start: 2;
+            grid-row-end: 2;
+            background-color: lightgreen;
+        }
+
+        #street-view {
+            width: 100vw;
+            height: 100vh;
+            display: grid;
+            grid-template-rows: 10vh 90vh;
+        }
+
+        #street-view #nav {
+            width: 100vw;
+            grid-row-start: 1;
+            grid-row-end: 2;
+            display: grid;
+            grid-template-columns: 20vw 80vw;
+        }
+
+        #street-view #nav #current-street {
+            grid-column-start: 2;
+            grid-column-end: 2;
+            display: block;
+            text-align: right;
+            margin: 1rem;
+            font-size: 1.5rem;
+            text-align: left;
+            height: 2rem;
+        }
+
+        #street-view #nav #back {
+            grid-column-start: 1;
+            grid-column-end: 2;
+            margin: 1rem;
+            background-color: lightcoral;
+            height: 2rem;
+        }
+
+        #street-view #doors {
+            display: grid;
+            grid-column-gap: 0.75rem;
+            row-gap: 0.75rem;
+            grid-template-columns: 4rem 4rem 4rem 4rem 4rem 4rem 4rem;
+            grid-auto-rows: 3rem;
+            justify-self: center;
+            overflow-y: scroll;
+        }
+
+        #street-view #doors button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .door-no {
+            font-weight: bold;
+        }
+
+        .status {
+            font-style: italic;
+        }
+
     </style>
 </head>
 <body>
-    <div id="landing">
-        <input type="text" name="streetname" id="street-name">
-        <input type="button" value="Add Street" id="landing-add">
-        <input type="button" value="Start" id="landing-start">
+    <div id="new-street-view">
+        <input type="text" id="street-name" value=""/>
+        <button id="add-street" disabled>Add</button>
+        <button id="cancel">Cancel</button>
     </div>
-    <div id="main" style="display: none;">
-        <div id="streets"></div>
-        <div id="doors"></div>
+    <div id="street-menu-view">
+        <div id="streets">
+            <!-- Streets go here -->
+        </div>
+        <button id="add-new-street">New Street</button>
+    </div>
+    <div id="street-view">
+        <div id="nav">
+            <button id="back">Back</button>
+            <span id="current-street"></span>
+        </div>
+        <div id="doors">
+            <!-- Doors go here -->
+        </div>
     </div>
     <script>
-        class Street {
-                constructor(name) {
-                    this.name = name;
-                    this.doors = [];
-                    this.button = document.createElement("button");
-                    this.button.innerHTML = this.name;
-                    this.button.classList = ["street-btn"];
+        const STATUS_UNKNOCKED = 0;
+        const STATUS_KNOCKED = 1;
+        const STATUS_CONTACT = 2;
+        const STATUS_QUALIFIER = 3;
+        const STATUS_BOOKED = 4;
 
-                    for (let i = 0; i < 100; ++i) {
-                        this.doors.push(new Door(i));
-                    }
-
-                    this.button.addEventListener("click", this.click);
-                }
-
-                click = (event) => {
-                    renderDoors(this.doors);
-                }
-            }
-
-                    const STATUS_VIRGIN = 0;
-            const STATUS_KNOCKED = 1;
-            const STATUS_CONTACT = 2;
-            const STATUS_QUALIFIER = 3;
-            const STATUS_COLOUR = [];
-
-            STATUS_COLOUR[STATUS_VIRGIN] = "grey";
-            STATUS_COLOUR[STATUS_KNOCKED] = "blue";
-            STATUS_COLOUR[STATUS_CONTACT] = "red";
-            STATUS_COLOUR[STATUS_QUALIFIER] = "green";
-
-            function nextStatus(status) {
-                return (status + 1) % (STATUS_QUALIFIER + 1);
-            }
-
-
-        class Door {
-            constructor(no) {
-                this.no = no;
-                this.status = STATUS_VIRGIN;
-                this.button = document.createElement("button");
-                this.button.classList = ["door-btn"]
-                this.button.innerHTML = `${this.no}`;
-                this.button.style.background = STATUS_COLOUR[this.status];
-                this.button.addEventListener("click", this.click);
-
-            }
-
-            click = (event) => {
-                this.status = nextStatus(this.status);
-                this.button.style.background = STATUS_COLOUR[this.status];
-            };
+        function nextStatus(status) {
+            return (status + 1) % (STATUS_BOOKED + 1);
         }
 
-                    const renderDoors = (doors) => {
-                const doorsDisplay = document.querySelector("#doors");
-
-                doorsDisplay.replaceChildren();
-
-                for (let door of doors) {
-                    doorsDisplay.appendChild(door.button);
-                }
-            };
-
-        const streets = [];
-        const landing = document.querySelector("#landing");
-        const main = document.querySelector("#main");
-
-        // Landing
-        {
-            const streetName = document.querySelector("#street-name");
-            const add = document.querySelector("#landing-add");
-            const start = document.querySelector("#landing-start");
-
-            add.addEventListener("click", (_event) => {
-                console.log(streetName.value);
-                streets.push(new Street(streetName.value));
-            });
-
-            start.addEventListener("click", (_event) => {
-                landing.style.display = "none";
-                main.style.display = "block";
-                runMain();
-            })
+        function statusToString(status) {
+            switch (status) {
+                case STATUS_UNKNOCKED:
+                    return "U";
+                case STATUS_KNOCKED:
+                    return "K";
+                case STATUS_CONTACT:
+                    return "C";
+                case STATUS_QUALIFIER:
+                    return "Q";
+                case STATUS_BOOKED:
+                    return "B";
+            }
         }
 
-        function runMain(){ 
-            // Main
-            const streetsDisplay = document.querySelector("#streets");
+        function statusToBg(status) {
+            switch (status) {
+                case STATUS_UNKNOCKED:
+                    return "lightgrey";
+                case STATUS_KNOCKED:
+                    return "lightcoral";
+                case STATUS_CONTACT:
+                    return "lightblue";
+                case STATUS_QUALIFIER:
+                    return "red";
+                case STATUS_BOOKED:
+                    return "lightgreen";
+            }
+        }
 
-            for (let i = 0; i < streets.length; ++i) {
-                streetsDisplay.appendChild(streets[i].button);
+        function getStreetNames() {
+            const result = localStorage.getItem("streetNames");
+
+            if (!result) {
+                localStorage.setItem("streetNames", "");
+                return [];
+            } else {
+                return result.split(",");
+            }
+        }
+
+        function setStreetNames(streetNames) {
+            localStorage.setItem("streetNames", streetNames);
+        }
+
+        function getDoor(streetName, door) {
+            const text = localStorage.getItem(`${streetName}_${door}`);
+
+            if (text) {
+                return parseInt(text);
+            } else {
+                return STATUS_UNKNOCKED;
+            }
+        }
+
+        function setDoor(streetName, door, status) {
+            const address = `${streetName}_${door}`;
+
+            if (status === STATUS_UNKNOCKED) {
+                localStorage.removeItem(address);
+            } else {
+                console.log(`${streetName} ${door} ${status}`);
+                localStorage.setItem(address, status);
+            }
+        }
+
+        function createStreet(streetName) {
+            const streetNames = getStreetNames();
+            streetNames.push(streetName);
+            setStreetNames(streetNames);
+        }
+
+        const newStreetView = document.querySelector("#new-street-view");
+        const streetMenuView = document.querySelector("#street-menu-view");
+        const streetView = document.querySelector("#street-view");
+
+        function newStreetPage() {
+            newStreetView.style.display = "grid";
+            streetMenuView.style.display = "none";
+            streetView.style.display = "none";
+        }
+
+        function streetMenuPage() {
+            streetMenuView.style.display = "grid";
+            newStreetView.style.display = "none";
+            streetView.style.display = "none";
+
+            const streets = document.querySelector("#streets");
+            const streetNames = getStreetNames();
+
+            streets.replaceChildren();
+
+            if (streetNames.length === 0) {
+                const noStreets = document.createElement("span");
+                noStreets.innerText = "No streets";
+                streets.appendChild(noStreets);
             }
 
-
-            renderDoors(streets[0].doors);
+            for (const streetName of streetNames) {
+                const button = document.createElement("button");
+                button.innerText = streetName;
+                button.addEventListener("click", _ => streetPage(streetName));
+                streets.appendChild(button);
+            }
         }
+
+        function streetPage(streetName) {
+            streetView.style.display = "grid";
+            newStreetView.style.display = "none";
+            streetMenuView.style.display = "none";
+
+            document.querySelector("#current-street").innerText = streetName;
+
+            const doors = document.querySelector("#doors");
+
+            doors.replaceChildren();
+
+            for (let no = 1; no <= 200; no++) {
+                const status = getDoor(streetName, no);
+
+                const button = document.createElement("button");
+                const noText = document.createElement("span");
+                const statusText = document.createElement("span");
+
+                button.style.backgroundColor = statusToBg(status);
+                noText.innerText = no;
+                statusText.innerText = statusToString(status);
+
+                button.appendChild(noText);
+                button.appendChild(statusText);
+                doors.appendChild(button);
+
+                button.addEventListener("click", _ => {
+                    const status = nextStatus(getDoor(streetName, no));
+                    setDoor(streetName, no, status);
+                    statusText.innerText = statusToString(getDoor(streetName, no));
+                    button.style.backgroundColor = statusToBg(status);
+                });
+            }
+        }
+
+        document.querySelector("#street-name").addEventListener("keypress", event => {
+            document.querySelector("#add-street").disabled = event.target.value.length === 0;
+        })
+
+        document.querySelector("#add-street").addEventListener("click", _ => {
+            const streetNameInput = document.querySelector("#street-name");
+            const streetName = streetNameInput.value;
+            if (streetName.length !== 0) {
+                streetNameInput.value = "";
+                createStreet(streetName);
+                streetMenuPage();
+            }
+        });
+
+        document.querySelector("#cancel").addEventListener("click", _ => streetMenuPage());
+
+        document.querySelector("#add-new-street").addEventListener("click", _ => newStreetPage());
+
+        document.querySelector("#back").addEventListener("click", _ => streetMenuPage());
     </script>
 </body>
 </html>
