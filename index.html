@@ -352,7 +352,31 @@
                 const [ k, c, q, b ] = result.split(",").map(x => parseInt(x));
                 return { k, c, q, b };
             } else {
-                return { k: 0, c: 0, q: 0, b: 0 };
+                let k = 0, c = 0, q = 0, b = 0;
+                const streetNames = getStreetNames();
+
+                for (const streetName in streetNames) {
+                    for (let no = 1; no <= 200; ++no) {
+                        const status = getDoor(streetName, no);
+
+                        switch (status) {
+                            case STATUS_KNOCKED:
+                                k += 1;
+                                break;
+                            case STATUS_CONTACT:
+                                c += 1;
+                                break;
+                            case STATUS_QUALIFIER:
+                                q += 1;
+                                break;
+                            case STATUS_BOOKED:
+                                b += 1;
+                                break;
+                        }
+                    }
+                }
+
+                return { k, c, q, b };
             }
         }
 
